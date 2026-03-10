@@ -1,2 +1,0 @@
-# hamzatahirbajwa.github.io
-Portfolio
