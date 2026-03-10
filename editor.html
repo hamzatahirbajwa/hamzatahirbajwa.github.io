@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Template Editor — HTB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="editor.css" />
+</head>
+<body>
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <span class="topbar__logo">HTB</span>
+      <span class="topbar__title">Template Editor</span>
+    </div>
+    <div class="topbar__actions">
+      <button class="topbar__btn topbar__btn--ghost" id="btnPreview">
+        <i class="fa-solid fa-eye"></i> Preview
+      </button>
+      <button class="topbar__btn topbar__btn--ghost" id="btnLoadData">
+        <i class="fa-solid fa-upload"></i> Import JSON
+      </button>
+      <button class="topbar__btn topbar__btn--ghost" id="btnExportData">
+        <i class="fa-solid fa-download"></i> Export JSON
+      </button>
+      <button class="topbar__btn topbar__btn--primary" id="btnGenerate">
+        <i class="fa-solid fa-code"></i> Generate Site
+      </button>
+    </div>
+  </header>
+
+  <div class="editor-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar__nav">
+        <button class="sidebar__link active" data-panel="hero">
+          <i class="fa-solid fa-star"></i> Hero
+        </button>
+        <button class="sidebar__link" data-panel="projects">
+          <i class="fa-solid fa-briefcase"></i> Projects
+        </button>
+        <button class="sidebar__link" data-panel="about">
+          <i class="fa-solid fa-user"></i> About
+        </button>
+        <button class="sidebar__link" data-panel="experience">
+          <i class="fa-solid fa-timeline"></i> Experience
+        </button>
+        <button class="sidebar__link" data-panel="skills">
+          <i class="fa-solid fa-tools"></i> Skills
+        </button>
+        <button class="sidebar__link" data-panel="contact">
+          <i class="fa-solid fa-envelope"></i> Contact
+        </button>
+        <button class="sidebar__link" data-panel="images">
+          <i class="fa-solid fa-image"></i> Images
+        </button>
+        <button class="sidebar__link" data-panel="settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="editor-main">
+      <!-- ============ HERO PANEL ============ -->
+      <section class="panel active" id="panel-hero">
+        <div class="panel__header">
+          <h2 class="panel__title"><i class="fa-solid fa-star"></i> Hero Section</h2>
+          <p class="panel__desc">Edit the main hero section — name, title, subtitle, and call-to-action.</p>
+        </div>
+        <div class="panel__body">
+          <div class="field-group">
+            <label class="field__label">Role Label</label>
+            <input type="text" class="field__input" id="heroRoleLabel" value="Creative Director" />
+          </div>
+          <div class="field-group">
+            <label class="field__label">Name — Line 1</label>
+            <input type="text" class="field__input" id="heroName1" value="HAMZA" />
+          </div>
+          <div class="field-group">
+            <label class="field__label">Name — Line 2 (Accent / Outline)</label>
+            <input type="text" class="field__input" id="heroName2" value="TAHIR" />
+          </div>
+          <div class="field-group">
+            <label class="field__label">Name — Line 3</label>
+            <input type="text" class="field__input" id="heroName3" value="BAJWA" />
+          </div>
+          <div class="field-group">
+            <label class="field__label">Hero Subtitle / Statement</label>
+            <textarea class="field__input field__input--textarea" id="heroSubtitle" rows="3">Crafting cinematic brands, motion systems, and visual stories that command attention.</textarea>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field__label">CTA Button 1 Text</label>
+              <input type="text" class="field__input" id="heroCta1" value="View Selected Work" />
+            </div>
+            <div class="field-group">
+              <label class="field__label">CTA Button 2 Text</label>
+              <input type="text" class="field__input" id="heroCta2" value="Get In Touch" />
+            </div>
+          </div>
+
+          <h3 class="panel__subtitle">Stats Cards</h3>
+          <div class="field-row field-row--3">
+            <div class="field-group">
+              <label class="field__label">Stat 1 Number</label>
+              <input type="number" class="field__input" id="heroStat1Num" value="12" />
+              <label class="field__label field__label--sm">Label</label>
+              <input type="text" class="field__input" id="heroStat1Label" value="Years Experience" />
+            </div>
+            <div class="field-group">
+              <label class="field__label">Stat 2 Number</label>
+              <input type="number" class="field__input" id="heroStat2Num" value="150" />
+              <label class="field__label field__label--sm">Label</label>
+              <input type="text" class="field__input" id="heroStat2Label" value="Projects Delivered" />
+            </div>
+            <div class="field-group">
+              <label class="field__label">Stat 3 Number</label>
+              <input type="number" class="field__input" id="heroStat3Num" value="40" />
+              <label class="field__label field__label--sm">Label</label>
+              <input type="text" class="field__input" id="heroStat3Label" value="Brand Campaigns" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PROJECTS PANEL ============ -->
+      <section class="panel" id="panel-projects">
+        <div class="panel__header">
+          <h2 class="panel__title"><i class="fa-solid fa-briefcase"></i> Selected Work / Projects</h2>
+          <p class="panel__desc">Manage your portfolio projects. Add, edit, reorder, or remove project cards.</p>
+        </div>
+        <div class="panel__body">
+          <div class="panel__toolbar">
+            <button class="topbar__btn topbar__btn--primary" id="btnAddProject">
+              <i class="fa-solid fa-plus"></i> Add Project
+            </button>
+          </div>
+          <div id="projectsList" class="projects-list"></div>
+        </div>
+      </section>
+
+      <!-- ============ ABOUT PANEL ============ -->
+      <section class="panel" id="panel-about">
+        <div class="panel__header">
+          <h2 class="panel__title"><i class="fa-solid fa-user"></i> About Section</h2>
+          <p class="panel__desc">Edit the personal biography and professional details.</p>
+        </div>
+        <div class="panel__body">
+          <div class="field-group">
+            <label class="field__label">Section Heading</label>
+            <input type="text" class="field__input" id="aboutHeading" value="THE VISION BEHIND THE WORK" />
+          </div>
+          <div class="field-group">
+            <label class="field__label">Introduction Paragraph</label>
+            <textarea class="field__input field__input--textarea" id="aboutIntro" rows="4">I'm Hamza Tahir Bajwa — a Digital Content Director with over a decade of experience transforming ideas into cinematic brand experiences. I operate at the intersection of motion design, creative direction, and visual storytelling.</textarea>
+          </div>
+          <div class="field-group">
+            <label class="field__label">Body Paragraph</label>
+            <textarea class="field__input field__input--textarea" id="aboutBody" rows="4">My work bridges the gap between artistry and strategy — crafting motion systems, brand identities, and video productions that don't just look premium, but drive real impact. From Dubai real estate films to large-scale brand campaigns, every project is an opportunity to push boundaries.</textarea>
+          </div>
+          <div class="field-group">
+            <label class="field__label">Experience Badge Text</label>
+            <input type="text" class="field__input" id="aboutBadge" value="12+" />
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field__label">Current Role</label>
+              <input type="text" class="field__input" id="aboutRole" value="Chief Design Officer at Notiune" />
+            </div>
+            <div class="field-group">
+              <label class="field__label">Location</label>
+              <input type="text" class="field__input" id="aboutLocation" value="Islamabad, Pakistan" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field__label">Specialization</label>
+            <input type="text" class="field__input" id="aboutSpec" value="Motion Graphics, Creative Direction, Branding" />
+          </div>
+          <div class="field-group">
+            <label class="field__label">Portrait Image</label>
+            <div class="image-upload" id="aboutImageUpload">
+              <input type="file" accept="image/*" class="image-upload__input" id="aboutImage" />
+              <div class="image-upload__preview" id="aboutImagePreview">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Click or drag to upload portrait</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EXPERIENCE PANEL ============ -->
+      <section class="panel" id="panel-experience">
+        <div class="panel__header">
+          <h2 class="panel__title"><i class="fa-solid fa-timeline"></i> Experience / Timeline</h2>
+          <p class="panel__desc">Manage your career timeline entries.</p>
+        </div>
+        <div class="panel__body">
+          <div class="panel__toolbar">
+            <button class="topbar__btn topbar__btn--primary" id="btnAddExperience">
+              <i class="fa-solid fa-plus"></i> Add Experience
+            </button>
+          </div>
+          <div id="experienceList" class="experience-list"></div>
+        </div>
+      </section>
+
+      <!-- ============ SKILLS PANEL ============ -->
+      <section class="panel" id="panel-skills">
+        <div class="panel__header">
+          <h2 class="panel__title"><i class="fa-solid fa-tools"></i> Skills & Tools</h2>
+          <p class="panel__desc">Edit skill categories and software proficiency list.</p>
+        </div>
+        <div class="panel__body">
+          <h3 class="panel__subtitle">Skill Categories</h3>
+          <div id="skillCategoriesList" class="skill-categories-list"></div>
+          <div class="panel__toolbar" style="margin-top: 16px;">
+            <button class="topbar__btn topbar__btn--primary" id="btnAddSkillCategory">
+              <i class="fa-solid fa-plus"></i> Add Category
+            </button>
+          </div>
+
+          <h3 class="panel__subtitle" style="margin-top: 32px;">Software Proficiency</h3>
+          <div id="softwareList" class="software-list"></div>
+          <div class="panel__toolbar" style="margin-top: 16px;">
+            <button class="topbar__btn topbar__btn--primary" id="btnAddSoftware">
+              <i class="fa-solid fa-plus"></i> Add Software
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONTACT PANEL ============ -->
+      <section class="panel" id="panel-contact">
+        <div class="panel__header">
+          <h2 class="panel__title"><i class="fa-solid fa-envelope"></i> Contact Information</h2>
+          <p class="panel__desc">Edit contact details, social links, and form settings.</p>
+        </div>
+        <div class="panel__body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field__label">Email</label>
+              <input type="email" class="field__input" id="contactEmail" value="hamzatahirbajwa98@gmail.com" />
+            </div>
+            <div class="field-group">
+              <label class="field__label">Phone</label>
+              <input type="text" class="field__input" id="contactPhone" value="+92-331-5554436" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field__label">Location</label>
+            <input type="text" class="field__input" id="contactLocation" value="Islamabad, Pakistan" />
+          </div>
+
+          <h3 class="panel__subtitle">Social Links</h3>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field__label">LinkedIn URL</label>
+              <input type="url" class="field__input" id="socialLinkedin" value="#" />
+            </div>
+            <div class="field-group">
+              <label class="field__label">Instagram URL</label>
+              <input type="url" class="field__input" id="socialInstagram" value="#" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field__label">Behance URL</label>
+              <input type="url" class="field__input" id="socialBehance" value="#" />
+            </div>
+            <div class="field-group">
+              <label class="field__label">YouTube URL</label>
+              <input type="url" class="field__input" id="socialYoutube" value="#" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field__label">Twitter / X URL</label>
+            <input type="url" class="field__input" id="socialTwitter" value="#" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ IMAGES PANEL ============ -->
+      <section class="panel" id="panel-images">
+        <div class="panel__header">
+          <h2 class="panel__title"><i class="fa-solid fa-image"></i> Image Manager</h2>
+          <p class="panel__desc">Upload and manage all images used across the portfolio. Upload images here and reference their filenames in project cards.</p>
+        </div>
+        <div class="panel__body">
+          <div class="field-group">
+            <label class="field__label">Upload Images to Assets Folder</label>
+            <div class="image-upload image-upload--multi" id="multiImageUpload">
+              <input type="file" accept="image/*,video/*" multiple class="image-upload__input" id="multiImageInput" />
+              <div class="image-upload__preview" id="multiImagePreview">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Click or drag to upload images / videos</span>
+              </div>
+            </div>
+          </div>
+          <div class="uploaded-gallery" id="uploadedGallery"></div>
+          <div class="info-box">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>Uploaded files are stored in your browser's memory for this session. When you click <strong>Generate Site</strong>, the HTML will reference filenames from the <code>assets/</code> folder — make sure to save your uploaded files there manually.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SETTINGS PANEL ============ -->
+      <section class="panel" id="panel-settings">
+        <div class="panel__header">
+          <h2 class="panel__title"><i class="fa-solid fa-gear"></i> Site Settings</h2>
+          <p class="panel__desc">Global settings — page title, meta description, nav, and footer.</p>
+        </div>
+        <div class="panel__body">
+          <div class="field-group">
+            <label class="field__label">Page Title (Browser Tab)</label>
+            <input type="text" class="field__input" id="settingsTitle" value="Hamza Tahir Bajwa — Digital Content Director | Motion, Design & Branding" />
+          </div>
+          <div class="field-group">
+            <label class="field__label">Meta Description</label>
+            <textarea class="field__input field__input--textarea" id="settingsMeta" rows="2">Portfolio of Hamza Tahir Bajwa — Creative Director with 12+ years of experience crafting cinematic brands, motion systems, and visual stories.</textarea>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field__label">Nav Logo / Wordmark</label>
+              <input type="text" class="field__input" id="settingsLogo" value="HTB" />
+            </div>
+            <div class="field-group">
+              <label class="field__label">Nav CTA Text</label>
+              <input type="text" class="field__input" id="settingsCta" value="Let's Talk" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field__label">Footer Tagline</label>
+            <input type="text" class="field__input" id="settingsTagline" value="Crafting cinematic brands & visual stories." />
+          </div>
+          <div class="field-group">
+            <label class="field__label">Copyright Year</label>
+            <input type="text" class="field__input" id="settingsYear" value="2026" />
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Hidden file input for JSON import -->
+  <input type="file" id="jsonImport" accept=".json" style="display:none" />
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="editor.js"></script>
+</body>
+</html>
