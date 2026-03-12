@@ -38,7 +38,9 @@
         desc: 'A cinematic motion graphics campaign for a luxury brand launch, blending editorial design with dynamic animations.',
         tags: ['After Effects', 'Cinema 4D', 'Premiere Pro'],
         icon: 'fa-solid fa-play',
-        image: '',
+        mediaType: 'video',
+        thumbnail: '',
+        media: '',
       },
       {
         title: 'Corporate Documentary',
@@ -46,7 +48,9 @@
         desc: 'Full-scale documentary production showcasing corporate vision through cinematic storytelling and impactful narratives.',
         tags: ['Premiere Pro', 'DaVinci Resolve', 'Direction'],
         icon: 'fa-solid fa-film',
-        image: '',
+        mediaType: 'image',
+        thumbnail: '',
+        media: '',
       },
       {
         title: 'Brand Identity Animation',
@@ -54,7 +58,9 @@
         desc: 'Animated brand identity system with motion logo, transitions, and visual language framework.',
         tags: ['After Effects', 'Illustrator'],
         icon: 'fa-solid fa-wand-magic-sparkles',
-        image: '',
+        mediaType: 'icon',
+        thumbnail: '',
+        media: '',
       },
       {
         title: 'Sky City Dubai',
@@ -62,7 +68,9 @@
         desc: "Premium real estate video production for Dubai's Sky City development — aerial cinematography and luxury storytelling.",
         tags: ['Premiere Pro', 'Drone', 'Color Grading'],
         icon: 'fa-solid fa-building',
-        image: '',
+        mediaType: 'video',
+        thumbnail: '',
+        media: '',
       },
       {
         title: 'Product Launch Film',
@@ -70,7 +78,9 @@
         desc: 'High-energy product launch film combining 3D renders, kinetic typography, and cinematic transitions.',
         tags: ['Blender', 'After Effects', 'Premiere Pro'],
         icon: 'fa-solid fa-rocket',
-        image: '',
+        mediaType: 'image',
+        thumbnail: '',
+        media: '',
       },
       {
         title: 'Social Media Campaign',
@@ -78,7 +88,9 @@
         desc: 'End-to-end social media content direction — strategy, visual design, motion assets, and campaign management.',
         tags: ['Photoshop', 'After Effects', 'Strategy'],
         icon: 'fa-solid fa-hashtag',
-        image: '',
+        mediaType: 'icon',
+        thumbnail: '',
+        media: '',
       },
     ],
     about: {
@@ -309,9 +321,23 @@
             <input type="text" class="field__input proj-icon" value="${escHtml(p.icon)}" />
           </div>
         </div>
-        <div class="field-group">
-          <label class="field__label">Image/Video Path (e.g. assets/project1.jpg)</label>
-          <input type="text" class="field__input proj-image" value="${escHtml(p.image || '')}" placeholder="Leave empty for icon placeholder" />
+        <div class="field-row field-row--3">
+          <div class="field-group">
+            <label class="field__label">Media Type</label>
+            <select class="field__input proj-type">
+              <option value="icon" ${p.mediaType === 'icon' ? 'selected' : ''}>Icon (No click)</option>
+              <option value="image" ${p.mediaType === 'image' ? 'selected' : ''}>Image</option>
+              <option value="video" ${p.mediaType === 'video' ? 'selected' : ''}>Video</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field__label">Thumbnail Path</label>
+            <input type="text" class="field__input proj-thumb" value="${escHtml(p.thumbnail || '')}" placeholder="assets/thumb.jpg" />
+          </div>
+          <div class="field-group">
+            <label class="field__label">Full Media Path (Video/Image)</label>
+            <input type="text" class="field__input proj-media" value="${escHtml(p.media || '')}" placeholder="assets/video.mp4" />
+          </div>
         </div>
       </div>
     `).join('');
@@ -324,7 +350,9 @@
       desc: $('.proj-desc', card).value,
       tags: $('.proj-tags', card).value.split(',').map((t) => t.trim()).filter(Boolean),
       icon: $('.proj-icon', card).value,
-      image: $('.proj-image', card).value,
+      mediaType: $('.proj-type', card).value,
+      thumbnail: $('.proj-thumb', card).value,
+      media: $('.proj-media', card).value,
     }));
   }
 
@@ -352,7 +380,9 @@
       desc: 'Project description...',
       tags: ['Tag1', 'Tag2'],
       icon: 'fa-solid fa-star',
-      image: '',
+      mediaType: 'icon',
+      thumbnail: '',
+      media: '',
     });
     renderProjects();
     autoSave();
@@ -637,15 +667,31 @@
   // ─── HTML Generator ───
   function generateHTML(d) {
     const projectCards = d.projects.map((p) => {
-      const imgBlock = p.image
-        ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" style="width:100%;height:100%;object-fit:cover;" />`
-        : `<div class="project-card__placeholder"><i class="${esc(p.icon)}"></i></div>`;
+      let imgBlock = '';
+      if (p.mediaType === 'icon') {
+        imgBlock = `<div class="project-card__placeholder"><i class="${esc(p.icon)}"></i></div>`;
+      } else {
+        const thumbSrc = esc(p.thumbnail || p.media);
+        imgBlock = thumbSrc
+          ? `<img src="${thumbSrc}" alt="${esc(p.title)}" />`
+          : `<div class="project-card__placeholder"><i class="fa-solid fa-image"></i></div>`;
+      }
+      
+      const playOverlay = p.mediaType === 'video' 
+        ? `<div class="project-card__play"><i class="fa-solid fa-play"></i></div>` 
+        : '';
+
+      const baseAttrs = (p.mediaType !== 'icon' && p.media) 
+        ? ` data-media="${esc(p.media)}" data-media-type="${esc(p.mediaType)}"`
+        : '';
+
       return `
-          <article class="project-card">
+          <article class="project-card"${baseAttrs}>
             <div class="project-card__image">
               ${imgBlock}
+              ${playOverlay}
               <div class="project-card__overlay">
-                <span class="project-card__view">View Project <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                <span class="project-card__view">View ${p.mediaType === 'video' ? 'Video' : 'Project'} <i class="fa-solid fa-${p.mediaType === 'video' ? 'play' : 'arrow-up-right-from-square'}"></i></span>
               </div>
             </div>
             <div class="project-card__info">
@@ -708,6 +754,7 @@
 </head>
 <body>
   <div class="grain-overlay" aria-hidden="true"></div>
+  <canvas class="bg__canvas" id="bgCanvas"></canvas>
   <div class="cursor-dot" id="cursorDot"></div>
   <div class="cursor-ring" id="cursorRing"></div>
 
@@ -779,10 +826,14 @@
           <p class="section__subtitle">A curated collection of cinematic productions, brand campaigns, and motion design projects.</p>
         </div>
       </div>
-      <div class="work__scroll-wrapper">
-        <div class="work__track" id="workTrack">
+      <div class="work__slider reveal">
+        <button class="work__nav-btn work__nav-btn--prev" id="workPrev" aria-label="Previous Project"><i class="fa-solid fa-arrow-left"></i></button>
+        <div class="work__scroll-wrapper" id="workWrapper">
+          <div class="work__track" id="workTrack">
 ${projectCards}
+          </div>
         </div>
+        <button class="work__nav-btn work__nav-btn--next" id="workNext" aria-label="Next Project"><i class="fa-solid fa-arrow-right"></i></button>
       </div>
     </section>
 
@@ -907,6 +958,13 @@ ${softwareChips}
   </footer>
 
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+  <!-- Lightbox Modal -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox__close" id="lightboxClose" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <div class="lightbox__content" id="lightboxContent"></div>
+  </div>
+
   <script src="script.js"><\/script>
 </body>
 </html>`;

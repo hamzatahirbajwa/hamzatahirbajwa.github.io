@@ -156,16 +156,67 @@
     $$('.reveal').forEach((el) => el.classList.add('visible'));
   }
 
-  // ─── Work: Infinite Scroll Track Duplication ───
+  // ─── Work: Interactive Auto-Scroll ───
+  const workWrapper = $('#workWrapper');
   const workTrack = $('#workTrack');
-  if (workTrack) {
-    // Clone all cards and append to create seamless loop
+  const workPrev = $('#workPrev');
+  const workNext = $('#workNext');
+
+  if (workWrapper && workTrack) {
+    // Clone cards for seamless loop
     const cards = [...workTrack.children];
     cards.forEach((card) => {
       const clone = card.cloneNode(true);
       clone.setAttribute('aria-hidden', 'true');
       workTrack.appendChild(clone);
     });
+
+    let isPaused = false;
+    let scrollPos = 0;
+    const speed = 1.0;
+
+    function renderScroll() {
+      if (!isPaused) {
+        scrollPos += speed;
+        // Total scrollable distance is half the full track width (due to cloning) 
+        const maxScroll = workTrack.scrollWidth / 2;
+        if (scrollPos >= maxScroll) {
+          scrollPos -= maxScroll;
+        } else if (scrollPos < 0) {
+          scrollPos += maxScroll;
+        }
+        workWrapper.scrollLeft = scrollPos;
+      } else {
+        // Sync scrollPos if user manually scrolled or dragged wrapper
+        scrollPos = workWrapper.scrollLeft;
+      }
+      requestAnimationFrame(renderScroll);
+    }
+    
+    let manualScrollTimeout;
+    function handleManualScroll(direction) {
+      isPaused = true;
+      const cardWidth = $('.project-card', workTrack)?.offsetWidth || 400;
+      workWrapper.scrollBy({ left: (cardWidth + 28) * direction, behavior: 'smooth' });
+      
+      clearTimeout(manualScrollTimeout);
+      // Wait for the native smooth scroll to finish before resuming automated scroll
+      manualScrollTimeout = setTimeout(() => {
+        isPaused = false;
+      }, 600);
+    }
+
+    if (workPrev) workPrev.addEventListener('click', () => handleManualScroll(-1));
+    if (workNext) workNext.addEventListener('click', () => handleManualScroll(1));
+
+    // Pause auto-scroll when user hovers or touches the track
+    workWrapper.addEventListener('pointerenter', () => isPaused = true);
+    workWrapper.addEventListener('pointerleave', () => {
+      isPaused = false;
+      scrollPos = workWrapper.scrollLeft;
+    });
+
+    requestAnimationFrame(renderScroll);
   }
 
   // ─── Animated Counter ───
@@ -286,6 +337,241 @@
         }
       });
     }
+  }
+
+  // ─── Lightbox Modal for Media ───
+  const lightbox = $('#lightbox');
+  const lightboxClose = $('#lightboxClose');
+  const lightboxContent = $('#lightboxContent');
+
+  if (lightbox && lightboxClose && lightboxContent) {
+    // Open Lightbox
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.project-card[data-media]');
+      if (!card) return;
+
+      const mediaUrl = card.getAttribute('data-media');
+      const mediaType = card.getAttribute('data-media-type');
+
+      if (!mediaUrl) return;
+
+      lightboxContent.innerHTML = '';
+
+      if (mediaType === 'video') {
+        const isEmbed = mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be') || mediaUrl.includes('vimeo.com');
+        
+        if (isEmbed) {
+          // Auto-convert standard YouTube watch URLs to embed format for iframe playback
+          let embedUrl = mediaUrl;
+          if (mediaUrl.includes('youtube.com/watch?v=')) {
+            embedUrl = mediaUrl.replace('watch?v=', 'embed/');
+          } else if (mediaUrl.includes('youtu.be/')) {
+            embedUrl = mediaUrl.replace('youtu.be/', 'youtube.com/embed/');
+          }
+          
+          const iframe = document.createElement('iframe');
+          iframe.src = embedUrl;
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+          iframe.setAttribute('allowfullscreen', 'true');
+          
+          // Style iframe to maintain 16:9 ratio responsively
+          iframe.style.width = '85vw';
+          iframe.style.height = 'calc(85vw * 9 / 16)';
+          iframe.style.maxHeight = '85vh';
+          iframe.style.maxWidth = 'calc(85vh * 16 / 9)';
+          lightboxContent.appendChild(iframe);
+        } else {
+          const video = document.createElement('video');
+          video.src = mediaUrl;
+          video.controls = true;
+          video.autoplay = true;
+          video.loop = true;
+          video.setAttribute('playsinline', '');
+          lightboxContent.appendChild(video);
+        }
+      } else {
+        const img = document.createElement('img');
+        img.src = mediaUrl;
+        lightboxContent.appendChild(img);
+      }
+
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+
+    // Close Lightbox
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+      // Destroy content (stops video playback)
+      setTimeout(() => {
+        lightboxContent.innerHTML = '';
+      }, 350); 
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    
+    // Close on background click
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox || e.target === lightboxContent) {
+        closeLightbox();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+        closeLightbox();
+      }
+    });
+  }
+
+  // ─── Global Background Reactive Dots ───
+  const canvas = $('#bgCanvas');
+  if (canvas && !prefersReducedMotion) {
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+    const spacing = 35; // Grid spacing
+    const mouse = { x: -1000, y: -1000 };
+    
+    // We add a scroll tracker for parallax
+    let scrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      scrollY = window.scrollY;
+    }, { passive: true });
+
+    function resizeCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      
+      // Handle high DPI displays for crisp rendering
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+      
+      initParticles();
+    }
+
+    function initParticles() {
+      particles = [];
+      // Create extra rows to cover parallax bleed
+      const cols = Math.floor(width / spacing) + 2;
+      const rows = Math.floor(height / spacing) + 8; 
+      
+      for (let i = 0; i < cols; i++) {
+        for (let j = -4; j < rows; j++) {
+          particles.push({
+            ox: i * spacing,
+            oy: j * spacing,
+            x: i * spacing,
+            y: j * spacing,
+            vx: 0,
+            vy: 0,
+            size: 1.5,
+            angle: i * 0.1 + j * 0.1
+          });
+        }
+      }
+    }
+
+    function animateCanvas() {
+      ctx.clearRect(0, 0, width, height);
+
+      const maxDist = 220; // Radius of mouse influence
+      // Parallax shift based on scroll (dots move slower than the page scrolls)
+      const scrollOffset = scrollY * 0.4;
+
+      particles.forEach((p) => {
+        // Natural subtle wave
+        p.angle += 0.015;
+        const waveX = Math.sin(p.angle) * 3;
+        const waveY = Math.cos(p.angle) * 3;
+
+        // Visual position applied with parallax shift
+        const visualOY = p.oy - scrollOffset;
+
+        // Wrap around vertically if particles go out of frame to save memory
+        let wrappedOY = visualOY;
+        let wrappedJ = p.oy;
+        const totalHeight = (Math.floor(height / spacing) + 12) * spacing;
+        
+        while (wrappedOY < -spacing * 4) {
+          wrappedOY += totalHeight;
+        }
+
+        // Interaction calculation
+        const dx = mouse.x - (p.ox + waveX);
+        const dy = mouse.y - (wrappedOY + waveY);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        let forceX = 0;
+        let forceY = 0;
+        let targetSize = 1.5;
+        let isInteracting = false;
+        let force = 0;
+
+        if (dist < maxDist) {
+          isInteracting = true;
+          force = (maxDist - dist) / maxDist; // 0 to 1
+          const angle = Math.atan2(dy, dx);
+          
+          // Push away from cursor gently
+          forceX = -Math.cos(angle) * force * 35;
+          forceY = -Math.sin(angle) * force * 35;
+          
+          targetSize = 1.5 + force * 2.5; 
+        }
+
+        // Spring physics to return to base + wave
+        const targetX = p.ox + waveX + forceX;
+        const targetY = wrappedOY + waveY + forceY;
+
+        p.vx += (targetX - p.x) * 0.08;
+        p.vy += (targetY - p.y) * 0.08;
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Friction
+        p.vx *= 0.85;
+        p.vy *= 0.85;
+
+        // Smooth sizing
+        p.size += (targetSize - p.size) * 0.15;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+
+        if (isInteracting && force > 0.05) {
+          // Fade to amber accent (#FF9A3D) based on force length
+          const g = Math.floor(255 - force * 101); // 255 -> 154
+          const b = Math.floor(255 - force * 194); // 255 -> 61
+          const a = 0.15 + force * 0.7; // 0.15 -> 0.85
+          ctx.fillStyle = `rgba(255, ${g}, ${b}, ${a})`;
+        } else {
+          ctx.fillStyle = `rgba(255, 255, 255, 0.15)`;
+        }
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animateCanvas);
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    window.addEventListener('mouseleave', () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    animateCanvas();
   }
 
   // ─── Init ───
